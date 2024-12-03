@@ -1,16 +1,19 @@
 {
-  "private": true,
-  "scripts": {
-    "build": "nitro build",
-    "dev": "nitro dev",
-    "prepare": "nitro prepare",
-    "preview": "node .output/server/index.mjs"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "nitropack": "latest"
-  },
-  "dependencies": {
-    "zed": "^0.1.0"
-  }
+	"private": true,
+	"scripts": {
+		"build": "nitro build",
+		"dev": "nitro dev",
+		"prepare": "nitro prepare",
+		"preview": "node .output/server/index.mjs",
+		"browser": "npx remotion browser ensure"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"nitropack": "latest"
+	},
+	"dependencies": {
+		"@remotion/renderer": "^4.0.234",
+		"extract-zip": "^2.0.1",
+		"zod": "^3.23.8"
+	}
 }
