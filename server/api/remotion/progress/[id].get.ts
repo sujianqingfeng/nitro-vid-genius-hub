@@ -13,6 +13,13 @@ export default eventHandler(async (event) => {
 	const targetDir = join(UPLOAD_DIR, id)
 	const filePath = join(targetDir, PROGRESS_FILE)
 
+	if (!(await fileExists(filePath))) {
+		throw createError({
+			statusCode: 404,
+			statusMessage: 'Progress file not found',
+		})
+	}
+
 	const progressString = await readFile(filePath, 'utf-8')
 	const progress = JSON.parse(progressString)
 

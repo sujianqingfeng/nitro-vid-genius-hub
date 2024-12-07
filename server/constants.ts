@@ -6,3 +6,5 @@ export const OUTPUT_FILE = 'output.mp4'
 export const EXTRACT_DIR = 'dist'
 export const RENDER_INFO_FILE = 'render-info.json'
 export const PROGRESS_FILE = 'progress.json'
+
+export const BUNDLE_DIR = 'bundle'

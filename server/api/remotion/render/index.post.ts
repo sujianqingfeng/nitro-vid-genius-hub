@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { type RenderMediaOnProgress, renderMedia, selectComposition } from '@remotion/renderer'
 import extract from 'extract-zip'
 import { z } from 'zod'
-import { EXTRACT_DIR, OUTPUT_FILE, PROGRESS_FILE, RENDER_INFO_FILE, UPLOAD_DIR } from '~/constants'
+import { BUNDLE_DIR, EXTRACT_DIR, OUTPUT_FILE, PROGRESS_FILE, RENDER_INFO_FILE, UPLOAD_DIR } from '~/constants'
 
 const BodySchema = z.object({
 	id: z.string(),
@@ -20,33 +20,30 @@ function createWriteRenderOnProgress(id: string): RenderMediaOnProgress {
 	}
 }
 
-async function render(id: string, compositionId: string, inputProps: Record<string, any>, outputLocation: string) {
-	// 创建静态服务器并获取端口号
-	const port = await createStaticServer(id)
-	const serveUrl = `http://localhost:${port}/index.html`
+async function render(id: string, renderInfo: Record<string, any>, outputLocation: string, extractDir: string) {
+	const { compositionId, inputProps, composition: compositionInfo } = renderInfo
+	const bundleDir = join(extractDir, BUNDLE_DIR)
+	const composition = await selectComposition({
+		serveUrl: bundleDir,
+		id: compositionId,
+		inputProps,
+	})
 
-	console.log('🚀 ~ eventHandler ~ serveUrl:', serveUrl)
-	try {
-		const composition = await selectComposition({
-			serveUrl,
-			id: compositionId,
-			inputProps,
-		})
+	composition.durationInFrames = compositionInfo.durationInFrames
+	composition.fps = compositionInfo.fps
+	composition.height = compositionInfo.height
+	composition.width = compositionInfo.width
 
-		await renderMedia({
-			composition,
-			serveUrl,
-			codec: 'h264',
-			outputLocation,
-			inputProps,
-			onProgress: throttle(createWriteRenderOnProgress(id), 2000, {
-				trailing: true,
-			}),
-		})
-	} finally {
-		// 渲染完成后关闭静态服务器
-		closeStaticServer(id)
-	}
+	await renderMedia({
+		composition,
+		serveUrl: bundleDir,
+		codec: 'h264',
+		outputLocation,
+		inputProps,
+		onProgress: throttle(createWriteRenderOnProgress(id), 2000, {
+			trailing: true,
+		}),
+	})
 }
 
 export default eventHandler(async (event) => {
@@ -61,8 +58,7 @@ export default eventHandler(async (event) => {
 
 	const outputLocation = join(targetDir, OUTPUT_FILE)
 
-	const { compositionId, inputProps } = renderInfo
-	render(id, compositionId, inputProps, outputLocation)
+	render(id, renderInfo, outputLocation, extractDir)
 
 	return {
 		id,
