@@ -1,22 +1,24 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { type RenderMediaOnProgress, renderMedia, selectComposition } from '@remotion/renderer'
 import extract from 'extract-zip'
 import { z } from 'zod'
-import { EXTRACT_DIR, OUTPUT_FILE, RENDER_INFO_FILE, UPLOAD_DIR } from '~/constants'
+import { EXTRACT_DIR, OUTPUT_FILE, PROGRESS_FILE, RENDER_INFO_FILE, UPLOAD_DIR } from '~/constants'
 
 const BodySchema = z.object({
 	id: z.string(),
 	fileName: z.string(),
 })
 
-export const renderOnProgress: RenderMediaOnProgress = ({ progress }) => {
-	console.log(`Rendering is ${progress * 100}% complete`)
+function createWriteRenderOnProgress(id: string): RenderMediaOnProgress {
+	return async ({ progress }) => {
+		const message = `Rendering is ${progress * 100}% complete`
+		const targetDir = join(UPLOAD_DIR, id)
+		const progressFilePath = join(targetDir, PROGRESS_FILE)
+		await writeFile(progressFilePath, JSON.stringify({ progress: message }))
+		console.log(message)
+	}
 }
-
-export const throttleRenderOnProgress = throttle(renderOnProgress, 2000, {
-	trailing: true,
-})
 
 async function render(id: string, compositionId: string, inputProps: Record<string, any>, outputLocation: string) {
 	// 创建静态服务器并获取端口号
@@ -37,7 +39,9 @@ async function render(id: string, compositionId: string, inputProps: Record<stri
 			codec: 'h264',
 			outputLocation,
 			inputProps,
-			onProgress: throttleRenderOnProgress,
+			onProgress: throttle(createWriteRenderOnProgress(id), 2000, {
+				trailing: true,
+			}),
 		})
 	} finally {
 		// 渲染完成后关闭静态服务器
@@ -61,7 +65,6 @@ export default eventHandler(async (event) => {
 	render(id, compositionId, inputProps, outputLocation)
 
 	return {
-		success: true,
-		message: 'add render success',
+		id,
 	}
 })
