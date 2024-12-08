@@ -15,7 +15,9 @@ RUN apt install -y \
   libatk-bridge2.0-0 \
   libpango-1.0-0 \
   libcairo2 \
-  libcups2
+  libcups2 \
+  fonts-noto-color-emoji \
+  fonts-noto-cjk
 
 WORKDIR /app
 
