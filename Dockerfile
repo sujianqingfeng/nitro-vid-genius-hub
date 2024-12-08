@@ -21,9 +21,11 @@ WORKDIR /app
 
 COPY . .
 
+RUN npm i -g pnpm
+
 # 安装依赖并构建
-RUN npm install
-RUN npm run build
+RUN pnpm install
+RUN pnpm run build
 
 ENV NODE_ENV=production
 # ENV CHROME_PATH=/usr/bin/chromium
