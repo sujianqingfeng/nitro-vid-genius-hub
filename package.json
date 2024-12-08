@@ -4,7 +4,7 @@
 		"build": "nitro build",
 		"dev": "nitro dev",
 		"prepare": "nitro prepare",
-		"start": "node .output/server/index.mjs",
+		"start": "nitro dev",
 		"preview": "node .output/server/index.mjs",
 		"browser": "npx remotion browser ensure"
 	},
