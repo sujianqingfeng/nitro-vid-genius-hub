@@ -27,7 +27,7 @@ RUN npm i -g pnpm
 
 # 安装依赖并构建
 RUN pnpm install
-RUN pnpm run build
+# RUN pnpm run build
 
 ENV NODE_ENV=production
 # ENV CHROME_PATH=/usr/bin/chromium
