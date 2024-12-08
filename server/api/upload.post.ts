@@ -5,7 +5,6 @@ import { UPLOAD_DIR } from '~/constants'
 
 export default defineEventHandler(async (event) => {
 	const formData = await readMultipartFormData(event)
-	console.log('🚀 ~ defineEventHandler ~ formData:', formData)
 	if (!formData || formData.length === 0) {
 		throw createError({
 			statusCode: 400,
