@@ -1,4 +1,6 @@
 export default defineEventHandler(async (e) => {
+	const headers = getHeaders(e)
+	console.log('🚀 ~ defineEventHandler ~ headers:', headers)
 	const authorization = getHeader(e, 'Authorization')
 	console.log('🚀 ~ defineEventHandler ~ authorization:', authorization)
 	if (!authorization) {
