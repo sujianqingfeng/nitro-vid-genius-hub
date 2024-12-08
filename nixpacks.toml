@@ -16,3 +16,6 @@ aptPkgs = [
   "libcairo2",
   "libcups2"
 ]
+
+[phases.install]
+ cmd = "pnpm install"
