@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
 			id: dirId,
 		}
 	} catch (error) {
+		console.error(error)
 		throw createError({
 			statusCode: 500,
 			message: 'file upload failed',
