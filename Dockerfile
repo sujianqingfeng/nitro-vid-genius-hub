@@ -16,3 +16,18 @@ RUN apt install -y \
   libpango-1.0-0 \
   libcairo2 \
   libcups2
+
+WORKDIR /app
+
+COPY . .
+
+# 安装依赖并构建
+RUN npm install
+RUN npm run build
+
+ENV NODE_ENV=production
+# ENV CHROME_PATH=/usr/bin/chromium
+
+EXPOSE 3000
+
+CMD ["node", ".output/server/index.mjs"]

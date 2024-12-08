@@ -1,4 +1,5 @@
 [phases.setup]
+nixPkgs = ["ffmpeg"]
 aptPkgs = [
   "libnss3",
   "libdbus-1-3",
