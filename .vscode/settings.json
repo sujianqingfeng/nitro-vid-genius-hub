@@ -1,13 +1,5 @@
 {
-	"cSpell.words": [
-		"Innertube",
-		"isbot",
-		"lucide",
-		"tailwindcss",
-		"typecheck",
-		"undici",
-		"youtubei"
-	],
+	"cSpell.words": ["bullmq", "Innertube", "isbot", "lucide", "tailwindcss", "typecheck", "undici", "youtubei"],
 	"editor.formatOnSave": true,
 	"editor.defaultFormatter": "biomejs.biome",
 	"editor.codeActionsOnSave": {

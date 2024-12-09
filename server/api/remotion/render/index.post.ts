@@ -10,9 +10,9 @@ const BodySchema = z.object({
 	fileName: z.string(),
 })
 
-function createWriteRenderOnProgress(id: string): RenderMediaOnProgress {
+function createWriteRenderOnProgress(id: string, compositionId: string): RenderMediaOnProgress {
 	return async ({ progress }) => {
-		const message = `Rendering is ${progress * 100}% complete`
+		const message = `${compositionId}-${id}-${(progress * 100).toFixed(2)}%`
 		const targetDir = join(UPLOAD_DIR, id)
 		const progressFilePath = join(targetDir, PROGRESS_FILE)
 		await writeFile(progressFilePath, JSON.stringify({ progress: message }))
@@ -40,7 +40,7 @@ async function render(id: string, renderInfo: Record<string, any>, outputLocatio
 		codec: 'h264',
 		outputLocation,
 		inputProps,
-		onProgress: throttle(createWriteRenderOnProgress(id), 2000, {
+		onProgress: throttle(createWriteRenderOnProgress(id, compositionId), 2000, {
 			trailing: true,
 		}),
 	})

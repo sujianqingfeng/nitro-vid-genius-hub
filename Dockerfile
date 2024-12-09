@@ -1,5 +1,5 @@
 FROM node:22-bookworm-slim
-# Install Chrome dependencies
+# Install Chrome dependencies and ffmpeg
 RUN apt-get update
 RUN apt install -y \
   libnss3 \
@@ -17,7 +17,8 @@ RUN apt install -y \
   libcairo2 \
   libcups2 \
   fonts-noto-color-emoji \
-  fonts-noto-cjk
+  fonts-noto-cjk \
+  ffmpeg
 
 WORKDIR /app
 

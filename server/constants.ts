@@ -8,3 +8,7 @@ export const RENDER_INFO_FILE = 'render-info.json'
 export const PROGRESS_FILE = 'progress.json'
 
 export const BUNDLE_DIR = 'bundle'
+
+export const RENDER_QUEUE_NAME = 'render-tasks'
+
+export const REDIS_URL = process.env.REDIS_URL
