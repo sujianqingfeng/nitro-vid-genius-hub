@@ -1,32 +1,43 @@
 import { randomUUID } from 'node:crypto'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir } from 'node:fs/promises'
+import type { IncomingMessage } from 'node:http'
 import { join } from 'node:path'
+import formidable, { type File } from 'formidable'
 import { UPLOAD_DIR } from '~/constants'
 
 export default defineEventHandler(async (event) => {
-	const formData = await readMultipartFormData(event)
-	if (!formData || formData.length === 0) {
-		throw createError({
-			statusCode: 400,
-			message: 'not found file',
-		})
-	}
-
 	const dirId = randomUUID()
-
 	const uploadDir = join(UPLOAD_DIR, dirId)
 	await mkdir(uploadDir, { recursive: true })
 
-	for (const file of formData) {
-		if (file.filename && file.data) {
-			const filePath = join(uploadDir, file.filename)
-			await writeFile(filePath, file.data)
-		}
+	const form = formidable({
+		uploadDir,
+		keepExtensions: true,
+		maxFileSize: 500 * 1024 * 1024,
+		filename: (name, ext) => name + ext,
+	})
+
+	const [fields, files] = await new Promise<[formidable.Fields, formidable.Files]>((resolve, reject) => {
+		form.parse(event.node.req as IncomingMessage, (err, fields, files) => {
+			if (err) reject(err)
+			else resolve([fields, files])
+		})
+	})
+
+	const uploadedFiles = files.file as File | File[]
+	if (!uploadedFiles) {
+		throw createError({
+			statusCode: 400,
+			message: 'No file found in request',
+		})
 	}
 
 	return {
 		success: true,
-		message: 'file upload success',
+		message: 'File upload successful',
 		id: dirId,
+		files: Array.isArray(uploadedFiles)
+			? uploadedFiles.map((f) => ({ name: f.originalFilename, size: f.size }))
+			: [{ name: uploadedFiles.originalFilename, size: uploadedFiles.size }],
 	}
 })
