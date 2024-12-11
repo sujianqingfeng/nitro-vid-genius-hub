@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 	const form = formidable({
 		uploadDir,
 		keepExtensions: true,
-		maxFileSize: 500 * 1024 * 1024,
+		maxFileSize: 1000 * 1024 * 1024,
 		filename: (name, ext) => name + ext,
 	})
 
