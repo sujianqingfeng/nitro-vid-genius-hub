@@ -159,40 +159,11 @@ async function renderSyntheticSubtitle(job: Job) {
 
 	const renderInfoPath = join(extractDir, RENDER_INFO_FILE)
 
-	const { sourceFileName, subtitlesFileName } = await readFileJson<Record<string, any>>(renderInfoPath)
+	const { cmd } = await readFileJson<Record<string, any>>(renderInfoPath)
 	const outputPath = join(targetDir, OUTPUT_FILE)
 
 	await new Promise((resolve, reject) => {
-		const ffmpeg = child_process.spawn(
-			'ffmpeg',
-			[
-				'-y',
-				'-threads',
-				'2',
-				'-i',
-				sourceFileName,
-				'-vf',
-				`subtitles='${subtitlesFileName}':force_style='FontSize=17,Alignment=2,BorderStyle=1,Outline=0.5,Shadow=0,MarginV=20,PrimaryColour=&HFFFFFF,OutlineColour=&H404040'`,
-				'-c:v',
-				'libx264',
-				'-preset',
-				'slow',
-				'-crf',
-				'30',
-				'-maxrate',
-				'4M',
-				'-bufsize',
-				'3M',
-				'-c:a',
-				'aac',
-				'-b:a',
-				'128k',
-				'-movflags',
-				'+faststart',
-				outputPath,
-			],
-			{ cwd: extractDir },
-		)
+		const ffmpeg = child_process.spawn('ffmpeg', cmd.concat(outputPath), { cwd: extractDir })
 
 		// 收集错误输出
 		let stderr = ''
