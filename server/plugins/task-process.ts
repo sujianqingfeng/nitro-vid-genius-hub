@@ -98,7 +98,7 @@ async function cutPlayVideo({
 	const commentsEndFrame = lastComment ? lastComment.form + lastComment.durationInFrames : 0
 
 	const end = commentsEndFrame / fps
-	const command = `ffmpeg -y -ss 0 -i ${playVideoFilePath} -t ${end} -threads 3 -preset medium -crf 40 -vf scale=-1:720 ${destPlayVideoPath} -progress pipe:1`
+	const command = `ffmpeg -y -ss 0 -i ${playVideoFilePath} -t ${end} -threads 3 -preset medium -crf 40 -vf "scale=trunc(oh*a/2)*2:720"  ${destPlayVideoPath} -progress pipe:1`
 	await execCommand(command)
 
 	return destPlayVideoName
@@ -115,6 +115,31 @@ async function renderComments(job: Job) {
 
 	const destPlayVideoName = await cutPlayVideo({ id, compositionId, playVideoFileName: videoSrc, comments, bundleDir, compositionInfo })
 	const newInputProps = { ...inputProps, videoSrc: destPlayVideoName }
+
+	await remotionRender({
+		id,
+		compositionId,
+		inputProps: newInputProps,
+		outputLocation,
+		serveUrl: bundleDir,
+		compositionInfo,
+		onProgress(p) {
+			job.updateProgress(p)
+		},
+	})
+}
+
+async function newRenderComments(job: Job) {
+	const { id, fileName } = job.data
+	const { extractDir, targetDir } = await extractZipFile(id, fileName)
+	const outputLocation = join(targetDir, OUTPUT_FILE)
+	const bundleDir = join(extractDir, BUNDLE_DIR)
+
+	const { compositionId, inputProps, composition: compositionInfo } = await readFileJson<Record<string, any>>(join(extractDir, RENDER_INFO_FILE))
+	const { playFile, comments } = inputProps
+
+	const destPlayVideoName = await cutPlayVideo({ id, compositionId, playVideoFileName: playFile, comments, bundleDir, compositionInfo })
+	const newInputProps = { ...inputProps, playFile: destPlayVideoName }
 
 	await remotionRender({
 		id,
@@ -198,6 +223,14 @@ export default defineNitroPlugin(() => {
 				case 'render-comments':
 					try {
 						await renderComments(job)
+					} catch (error) {
+						console.log('🚀 ~ error:', error)
+					}
+					break
+
+				case 'new-render-comments':
+					try {
+						await newRenderComments(job)
 					} catch (error) {
 						console.log('🚀 ~ error:', error)
 					}
