@@ -237,11 +237,19 @@ export default defineNitroPlugin(() => {
 					break
 
 				case 'render-short-texts':
-					await renderShortTexts(job)
+					try {
+						await renderShortTexts(job)
+					} catch (error) {
+						console.log('🚀 ~ error:', error)
+					}
 					break
 
 				case 'synthetic-subtitle':
-					await renderSyntheticSubtitle(job)
+					try {
+						await renderSyntheticSubtitle(job)
+					} catch (error) {
+						console.log('🚀 ~ error:', error)
+					}
 					break
 
 				default:
